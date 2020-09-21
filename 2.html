@@ -1,0 +1,36 @@
+<HTML>
+<BODY>
+<canvas id='Lab02_1' height='1000' width='900' style='border:1px solid'>
+</canvas>
+<canvas id='Lab02_2' height='1000' width='900' style='border:1px solid'>
+</canvas>
+<a href='#' id='btn' class='button' style='font-size: 200%'>BUTTON</a>
+
+<script>
+	var canvas = document.getElementById('Lab02_1');
+	var ctx = canvas.getContext('2d');
+	var canvas2 = document.getElementById('Lab02_2');
+	var ctx2 = canvas2.getContext('2d');
+	var img = new Image();
+	img.src = 'for_Lab02.jpg';
+	img.onload = function() {
+		ctx.drawImage(img, 0, 0);
+	};
+	var group_ = function() {
+		var Img_Date_plus = ctx.getImageData(0, 0, canvas.width, canvas.height);
+		for(var i = 0; i < Img_Date_plus.data.length; i += 4){
+            var Away = (Img_Date_plus.data[i] + Img_Date_plus.data[i + 1] + Img_Date_plus.data[i + 2]) / 3;  
+            Img_Date_plus.data[i] = Away;   
+            Img_Date_plus.data[i + 1] = Away;   
+            Img_Date_plus.data[i + 2] = Away;  
+		}
+		ctx2.putImageData(Img_Date_plus, 0, 0);
+	};
+
+	var group_btn_plus = document.getElementById('btn');
+	group_btn_plus.addEventListener('click', group_);
+
+</script>
+
+</BODY>
+</HTML>
