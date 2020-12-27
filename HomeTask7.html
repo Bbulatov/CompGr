@@ -1,0 +1,126 @@
+<HTML>
+
+<BODY>
+<canvas id='HomeTask7' height='750' width='750' style='border:3px solid'>
+</canvas>
+<h2 id="construct">CONSTRUCT</h2>
+
+<script>
+    
+    let canvas = document.getElementById('HomeTask7');
+    let suggest = document.getElementById('construct');
+    let ctx = canvas.getContext('2d');
+
+     class Point{
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;        
+        }
+    }	
+
+    function Line_Up_Data(ctx, X1, Y1, X2, Y2) {
+        let DifferY = Math.abs(Y2 - Y1);
+        let DifferX = Math.abs(X2 - X1);
+        let DifferMax = Math.max(DifferX, DifferY);
+        let DifferMin = Math.min(DifferX, DifferY);
+        let XD = 1;
+        if (X2 < X1) XD = -1;
+        let YD = 1;
+        if (Y2 < Y1) YD = -1;
+        let E = 0;
+        let Solids_Data = 1;
+        let Key = 2 * DifferMin;
+        if (DifferY <= DifferX) {
+            let Y = Y1;
+            for (let X = X1; X * XD <= X2 * XD; X += XD) {
+                ctx.fillRect(X * Solids_Data, Y * Solids_Data, 2 * Solids_Data, 2 * Solids_Data);
+                E = E + Key;
+                if (E > DifferMax) {
+                    Y += YD;
+                    E = E - 2 * DifferMax;
+                }
+            }
+        } else {
+            let X = X1;
+            for (let Y = Y1; Y * YD <= Y2 * YD; Y += YD) {
+                ctx.fillRect(X * Solids_Data, Y * Solids_Data, 2 * Solids_Data, 2 * Solids_Data);
+                E = E + Key;
+                if (E > DifferMax) {
+                    X += XD;
+                    E = E - 2 * DifferMax;
+                }
+            }
+        }
+    }
+
+     function FILLP(ctx, data_point_item) {
+        let MaxY = data_point_item[0].y, MinY = data_point_item[0].y;
+        for (let i = 1; i < data_point_item.length; i++) {
+            if (data_point_item[i].y > MaxY)
+                MaxY = data_point_item[i].y;
+            if (data_point_item[i].y < MinY)
+                MinY = data_point_item[i].y;
+        }
+
+        console.log(MaxY, MinY);
+        let VvectorY = [];
+        for (let i = 0; i < data_point_item.length; ++i) {
+            let High_parametr = 0, L_parametr = 0;
+            let Point_change = 0;
+
+            if (i !== data_point_item.length - 1)
+                Point_change = i + 1;
+
+            if (data_point_item[i].y > data_point_item[Point_change].y) {
+                High_parametr = i;
+                L_parametr = Point_change;
+            } else if (data_point_item[i].y < data_point_item[Point_change].y) {
+                High_parametr = Point_change;
+                L_parametr = i;
+            } else continue;
+
+            console.log("high = ", High_parametr, " low = ", L_parametr);
+
+            let Index = (data_point_item[High_parametr].y - data_point_item[L_parametr].y) /
+                (data_point_item[High_parametr].x - data_point_item[L_parametr].x);
+
+            console.log("K = ", Index);
+
+            for (let j = data_point_item[L_parametr].y; j < data_point_item[High_parametr].y; ++j) {
+                if (typeof VvectorY[j] == "undefined") VvectorY[j] = [];
+
+                VvectorY[j].push((j - data_point_item[L_parametr].y) / Index + data_point_item[L_parametr].x);
+            }
+        }
+
+        for (let y = MinY; y < MaxY; y++) {
+            let VvectorX = VvectorY[y].sort(function (a, b) {
+                return a - b;
+            });
+            for (let j = 0; j < VvectorX.length / 2; ++j) {
+                for (let Index = VvectorX[j * 2]; Index < VvectorX[j * 2 + 1]; Index++) {
+                    ctx.fillRect(Index, y, 1, 1);
+                }
+            }
+        }
+    }
+
+    let IndexOP = 0;
+    let data_point_item = [];
+    canvas.addEventListener('click', function (e) {
+        data_point_item[IndexOP] = new Point(e.offsetX, e.offsetY);
+        ctx.fillRect(e.offsetX, e.offsetY, 1, 1);
+        IndexOP += 1;
+    });
+
+    canvas.addEventListener("contextmenu", function () {
+        console.log("contextmenu");
+        FILLP(ctx, data_point_item);
+        IndexOP = 0;
+        data_point_item = [];
+    });
+
+</script>
+
+</body>
+</html>
