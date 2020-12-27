@@ -1,0 +1,119 @@
+<html>
+<body>
+
+    <canvas id='HomeTask6_1' height='1000' width='900' style='border:3px solid'></canvas>
+    <canvas id='HomeTask6_2' height='1000' width='900' style='border:3px solid'></canvas>
+
+    <script>
+        let canvas1 = document.getElementById('HomeTask6_1');
+        let canvas2 = document.getElementById('HomeTask6_2');
+        let button = document.getElementById('btn');
+        let context1 = canvas1.getContext('2d');
+        let context2 = canvas2.getContext('2d');
+
+        function Line_Up_Data(ctx, X1, Y1, X2, Y2) {
+        let DifferY = Math.abs(Y2 - Y1);
+        let DifferX = Math.abs(X2 - X1);
+        let DifferMax = Math.max(DifferX, DifferY);
+        let DifferMin = Math.min(DifferX, DifferY);
+        let XD = 1;
+        if (X2 < X1) XD = -1;
+        let YD = 1;
+        if (Y2 < Y1) YD = -1;
+        let E = 0;
+        let Solids_Data = 1;
+        let Key = 2 * DifferMin;
+        if (DifferY <= DifferX) {
+            let Y = Y1;
+            for (let X = X1; X * XD <= X2 * XD; X += XD) {
+                ctx.fillRect(X * Solids_Data, Y * Solids_Data, 2 * Solids_Data, 2 * Solids_Data);
+                E = E + Key;
+                if (E > DifferMax) {
+                    Y += YD;
+                    E = E - 2 * DifferMax;
+                }
+            }
+        } else {
+            let X = X1;
+            for (let Y = Y1; Y * YD <= Y2 * YD; Y += YD) {
+                ctx.fillRect(X * Solids_Data, Y * Solids_Data, 2 * Solids_Data, 2 * Solids_Data);
+                E = E + Key;
+                if (E > DifferMax) {
+                    X += XD;
+                    E = E - 2 * DifferMax;
+                }
+            }
+        }
+    }
+
+        let ImageUpData = new Image();
+        ImageUpData.src = 'for_Lab06.jpg';
+        let P = [];
+
+        ImageUpData.onload = function() {
+        	context1.drawImage(ImageUpData, 0, 0);
+        	let ImageUpDataWP = context1.getImageData(0, 0, canvas1.width, canvas1.height);
+        	console.log(ImageUpDataWP);
+            let newImageUpDataWP = context2.createImageData(canvas1.width, canvas1.height);
+        	for (let i = 0; i < canvas1.height; i++) {
+        		for (let j = 0; j < canvas1.width; j++) {
+                    if (ImageUpDataWP.data[4 * (i * canvas1.height + j) + 0] < 50 &&
+                        ImageUpDataWP.data[4 * (i * canvas1.height + j) + 1] < 50 &&
+                        ImageUpDataWP.data[4 * (i * canvas1.height + j) + 2] < 50 &&
+                        ImageUpDataWP.data[4 * (i * canvas1.height + j) + 3] >= 10) {
+                        for (let k = 0; k < 3; k++) {
+                            newImageUpDataWP.data[4 * (i * canvas1.height + j) + k] = 255; 
+                        }
+                        P.push({x: j, y: i});
+                    }
+                    else {
+                        for (let k = 0; k < 3; k++) {
+                            newImageUpDataWP.data[4 * (i * canvas1.height + j) + k] = 0;
+                        }
+                    }
+                    newImageUpDataWP.data[4 * (i * canvas1.height + j) + 3] = 255;
+        		}
+        	}
+        	context2.putImageData(newImageUpDataWP, 0, 0);
+
+            console.log(P);
+            const P_p = 48;
+            const THD = 600;
+            let Vector = [];
+            let Parametr = [];
+            for (let i = 0; i < P_p; i++) {
+                Vector.push(Math.tan((i + 0.01) * Math.PI / P_p));
+                Parametr.push([]);
+            }
+
+            for (let i = 0; i < P.length; i++) {
+                for (let j = 0; j < P_p; j++) {
+                    Parametr[j].push(P[i].y - P[i].x * Vector[j]);
+                }
+            }
+            console.log(Parametr);
+
+            let dataitem = 2;
+            for (let i = 0; i < P_p; i++) {
+                Parametr[i].sort();
+                while (let j = 1; j < Parametr[i].length) {
+                    let data = 0;
+                    let updata = Parametr[i][j];
+                    while ((Parametr[i][j] < updata + dataitem) && j < Parametr[i].length) {
+                        data++;
+                        j++;
+                    }
+                    context2.fillStyle = "#00FF00";
+                    if (data > THD) {
+                        let l = function(x) {
+                            return Vector[i] * x + updata;
+                        };
+                        Line_Up_Data(context2, 0, l(0), canvas2.width, l(canvas2.width));
+                    }
+                }
+            }
+        };
+    </script>
+
+</body>
+</html>
