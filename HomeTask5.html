@@ -1,0 +1,157 @@
+<HTML>
+
+<BODY>
+<canvas id='HomeTask5' height='750' width='750' style='border:3px solid'>
+</canvas>
+<h2 id="construct">CONSTRUCT</h2>
+
+<script>
+    
+    let canvas = document.getElementById('HomeTask5');
+    let suggest = document.getElementById('construct');
+    let ctx = canvas.getContext('2d');
+
+    function Line_Up_Data(ctx, X1, Y1, X2, Y2) {
+        let DifferY = Math.abs(Y2 - Y1);
+        let DifferX = Math.abs(X2 - X1);
+        let DifferMax = Math.max(DifferX, DifferY);
+        let DifferMin = Math.min(DifferX, DifferY);
+        let XD = 1;
+        if (X2 < X1) XD = -1;
+        let YD = 1;
+        if (Y2 < Y1) YD = -1;
+        let E = 0;
+        let Solids_Data = 1;
+        let Key = 2 * DifferMin;
+        if (DifferY <= DifferX) {
+            let Y = Y1;
+            for (let X = X1; X * XD <= X2 * XD; X += XD) {
+                ctx.fillRect(X * Solids_Data, Y * Solids_Data, 2 * Solids_Data, 2 * Solids_Data);
+                E = E + Key;
+                if (E > DifferMax) {
+                    Y += YD;
+                    E = E - 2 * DifferMax;
+                }
+            }
+        } else {
+            let X = X1;
+            for (let Y = Y1; Y * YD <= Y2 * YD; Y += YD) {
+                ctx.fillRect(X * Solids_Data, Y * Solids_Data, 2 * Solids_Data, 2 * Solids_Data);
+                E = E + Key;
+                if (E > DifferMax) {
+                    X += XD;
+                    E = E - 2 * DifferMax;
+                }
+            }
+        }
+    }
+    let Statement = 1; 
+    let FlaG = 1;
+    let Poly_P = [];
+    let Poly_P_Nu = 0;
+    let X1 = 0;
+    let Y1 = 0;
+    let AX, AY;
+    let BX, BY;
+    let Pixels1X, Pixels1Y;
+    let Pixels2X, Pixels2Y;
+
+    class Pixel {
+        constructor(x,y){
+            this.x = x;
+            this.y = y;
+        }
+    }
+   
+    canvas.addEventListener('click', function(event){
+        if (Statement){
+            if (FlaG){
+                if (event.offsetX > 0 && event.offsetX < canvas.width)
+                    if (event.offsetY > 0 && event.offsetY < canvas.height){
+                        Poly_P[Poly_P_Nu] = new Pixel(event.offsetX, event.offsetY);
+                        Poly_P_Nu ++;
+                        
+                        X1 = event.offsetX;
+                        Y1 = event.offsetY;
+                        ctx.fillRect(event.offsetX, event.offsetY, 3, 3);
+                        FlaG = 0;
+                    }
+            }
+            else {
+                Poly_P[Poly_P_Nu] = new Pixel(event.offsetX, event.offsetY);
+                Poly_P_Nu++;
+
+                ctx.fillRect(event.offsetX, event.offsetY, 3, 3);
+                Line_Up_Data(ctx, X1, Y1, event.offsetX, event.offsetY);
+                X1 = event.offsetX;
+                Y1 = event.offsetY;
+            }
+        }
+        else {
+            if (FlaG){
+                if (event.offsetX > 0 && event.offsetX < canvas.width){
+                    if (event.offsetY > 0 && event.offsetY < canvas.height){
+                        X1 = event.offsetX;
+                        Y1 = event.offsetY;
+                        ctx.fillRect(event.offsetX, event.offsetY, 3, 3)
+                        FlaG = 0;
+                    }
+                }
+            }
+            else {
+                ctx.fillRect(event.offsetX, event.offsetY, 3, 3);
+                Line_Up_Data(ctx, X1, Y1, event.offsetX, event.offsetY);
+                
+                AX = X1;
+                AY = Y1;
+                BX = event.offsetX;
+                BY = event.offsetY;
+                let Cross = [];
+                let CountCross = 0;
+
+                for (let Po_N = 0; Po_N < Poly_P_Nu; ++Po_N){
+                    Pixels1X = Poly_P[Po_N].x;
+                    Pixels1Y = Poly_P[Po_N].y;
+                    Pixels2X = Poly_P[(Po_N + 1) % Poly_P_Nu].x;
+                    Pixels2Y = Poly_P[(Po_N + 1) % Poly_P_Nu].y;
+
+                    Type_Up_Data = ((Pixels1Y - Pixels2Y) * (AX - Pixels1X) + (Pixels2X - Pixels1X) * (AY - Pixels1Y)) / ((BX - AX) * (Pixels2Y - Pixels1Y) + (BY - AY) * (Pixels1X - Pixels2X))
+
+                    if (Type_Up_Data <= 1 && Type_Up_Data >= 0){
+                        let Every_X = (BX - AX) * Type_Up_Data + AX;
+                        let Every_Y = (BY - AY) * Type_Up_Data + AY;
+
+                        Cross[CountCross] = new Pixel(Every_X, Every_Y);
+                        CountCross += 1;
+                    }      
+                }
+
+                if (CountCross == 2){
+                    ctx.fillStyle = "#00ff00";
+                    Line_Up_Data (ctx, Cross[0].x, Cross[0].y, Cross[1].x, Cross[1].y);
+                    ctx.fillStyle = "#000000";
+                }
+                else if (CountCross == 1){
+                    ctx.fillStyle = "#00ff00";
+                    Line_Up_Data (ctx, Every_X, Every_Y, BX, BY);
+                    ctx.fillStyle = "#000000";
+                }
+
+                FlaG = 1;
+            }
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (Statement == 1 && Poly_P_Nu > 1) {
+            suggest.textContent = "DRAW LINES";
+            Statement = 0;
+            FlaG = 1;
+            Line_Up_Data(ctx, Poly_P[0].x, Poly_P[0].y, Poly_P[Poly_P_Nu - 1].x, Poly_P[Poly_P_Nu - 1].y);
+        }
+    });
+        
+</script>
+
+</BODY>
+</HTML>
